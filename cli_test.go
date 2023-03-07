@@ -1,4 +1,4 @@
-package main
+package clip_as_service_rs_go_cli
 
 import (
 	"context"
