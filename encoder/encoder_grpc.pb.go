@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Encoder_EncodeText_FullMethodName = "/encoder.Encoder/EncodeText"
+	Encoder_EncodeText_FullMethodName  = "/encoder.Encoder/EncodeText"
+	Encoder_EncodeImage_FullMethodName = "/encoder.Encoder/EncodeImage"
 )
 
 // EncoderClient is the client API for Encoder service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EncoderClient interface {
-	EncodeText(ctx context.Context, in *EncodeTextRequest, opts ...grpc.CallOption) (*EncodeTextResponse, error)
+	EncodeText(ctx context.Context, in *EncodeTextRequest, opts ...grpc.CallOption) (*EncoderResponse, error)
+	EncodeImage(ctx context.Context, in *EncodeImageRequest, opts ...grpc.CallOption) (*EncoderResponse, error)
 }
 
 type encoderClient struct {
@@ -37,9 +39,18 @@ func NewEncoderClient(cc grpc.ClientConnInterface) EncoderClient {
 	return &encoderClient{cc}
 }
 
-func (c *encoderClient) EncodeText(ctx context.Context, in *EncodeTextRequest, opts ...grpc.CallOption) (*EncodeTextResponse, error) {
-	out := new(EncodeTextResponse)
+func (c *encoderClient) EncodeText(ctx context.Context, in *EncodeTextRequest, opts ...grpc.CallOption) (*EncoderResponse, error) {
+	out := new(EncoderResponse)
 	err := c.cc.Invoke(ctx, Encoder_EncodeText_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encoderClient) EncodeImage(ctx context.Context, in *EncodeImageRequest, opts ...grpc.CallOption) (*EncoderResponse, error) {
+	out := new(EncoderResponse)
+	err := c.cc.Invoke(ctx, Encoder_EncodeImage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,8 @@ func (c *encoderClient) EncodeText(ctx context.Context, in *EncodeTextRequest, o
 // All implementations must embed UnimplementedEncoderServer
 // for forward compatibility
 type EncoderServer interface {
-	EncodeText(context.Context, *EncodeTextRequest) (*EncodeTextResponse, error)
+	EncodeText(context.Context, *EncodeTextRequest) (*EncoderResponse, error)
+	EncodeImage(context.Context, *EncodeImageRequest) (*EncoderResponse, error)
 	mustEmbedUnimplementedEncoderServer()
 }
 
@@ -58,8 +70,11 @@ type EncoderServer interface {
 type UnimplementedEncoderServer struct {
 }
 
-func (UnimplementedEncoderServer) EncodeText(context.Context, *EncodeTextRequest) (*EncodeTextResponse, error) {
+func (UnimplementedEncoderServer) EncodeText(context.Context, *EncodeTextRequest) (*EncoderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EncodeText not implemented")
+}
+func (UnimplementedEncoderServer) EncodeImage(context.Context, *EncodeImageRequest) (*EncoderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EncodeImage not implemented")
 }
 func (UnimplementedEncoderServer) mustEmbedUnimplementedEncoderServer() {}
 
@@ -92,6 +107,24 @@ func _Encoder_EncodeText_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Encoder_EncodeImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EncodeImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncoderServer).EncodeImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Encoder_EncodeImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncoderServer).EncodeImage(ctx, req.(*EncodeImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Encoder_ServiceDesc is the grpc.ServiceDesc for Encoder service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Encoder_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EncodeText",
 			Handler:    _Encoder_EncodeText_Handler,
+		},
+		{
+			MethodName: "EncodeImage",
+			Handler:    _Encoder_EncodeImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

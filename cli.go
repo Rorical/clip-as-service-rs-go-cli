@@ -34,3 +34,16 @@ func (cli *ClipRsClient) EncodeText(ctx context.Context, texts []string) ([][]fl
 	}
 	return batch, nil
 }
+
+func (cli *ClipRsClient) EncodeImage(ctx context.Context, images [][]byte) ([][]float32, error) {
+	request := &pb.EncodeImageRequest{Images: images}
+	response, err := cli.client.EncodeImage(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	batch := make([][]float32, len(response.GetEmbedding()))
+	for i, b := range response.GetEmbedding() {
+		batch[i] = b.Point
+	}
+	return batch, nil
+}
