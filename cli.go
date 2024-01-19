@@ -24,7 +24,7 @@ func NewClipRsClient(uri string) (*ClipRsClient, error) {
 
 func (cli *ClipRsClient) EncodeText(ctx context.Context, texts []string) ([][]float32, error) {
 	request := &pb.EncodeTextRequest{Texts: texts}
-	response, err := cli.client.EncodeText(ctx, request)
+	response, err := cli.client.EncodeText(ctx, request, grpc.MaxCallSendMsgSize(999999))
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (cli *ClipRsClient) EncodeText(ctx context.Context, texts []string) ([][]fl
 
 func (cli *ClipRsClient) EncodeImage(ctx context.Context, images [][]byte) ([][]float32, error) {
 	request := &pb.EncodeImageRequest{Images: images}
-	response, err := cli.client.EncodeImage(ctx, request)
+	response, err := cli.client.EncodeImage(ctx, request, grpc.MaxCallSendMsgSize(999999))
 	if err != nil {
 		return nil, err
 	}
